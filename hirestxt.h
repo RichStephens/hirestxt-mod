@@ -189,6 +189,10 @@ void initVT52(void);
 //
 void clearRowsToEOS(byte byteToClearWith, byte textRow);
 
+// Clear rowsToClear text rows starting from textRow (0..HIRESHEIGHT-1).
+// Does nothing if textRow or rowsToClear is out of range.
+//
+void clearRowsN(byte byteToClearWith, byte textRow, byte rowsToClear);
 
 // Puts the cursor in the upper left position.
 //
@@ -216,10 +220,20 @@ byte getCursorRow(void);
 //
 void clear(void);
 
+// Fills n rows of the screen with spaces (does not move the cursor).
+//
+void clear(void);
+
+void clearn(byte n);
+
 
 // Homes the cursor and clears the screen.
 //
 void clrscr(void);
+
+// Homes the cursor and clears N rows from the start of the screen
+//
+void clrscrn(byte n);
 
 
 // Writes a character at the current cursor position and advances the cursor.

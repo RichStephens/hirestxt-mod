@@ -12,3 +12,9 @@ void clrscr(void)
     home();
     clear();
 }
+
+void clrscrn(byte n)
+{
+    home();
+    clearn(n);
+}

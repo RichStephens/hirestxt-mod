@@ -14,3 +14,11 @@ void clear(void)
                                 : 0xFFu);
     clearRowsToEOS(byteToClearWith, 0);
 }
+
+void clearn(byte n)
+{
+    byte byteToClearWith = (hiResTextConfig.numBitsPerPixel == 4
+                                ? hiResTextConfig.bgColorMask
+                                : 0xFFu);
+    clearRowsN(byteToClearWith, 0, n);
+}

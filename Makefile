@@ -17,6 +17,7 @@ endif
 LIBSRC = \
 	animateCursor.c \
 	clear.c \
+	clearRowsN.c \
 	clearRowsToEOS.c \
 	closeHiResTextScreen.c \
 	clrscr.c \
