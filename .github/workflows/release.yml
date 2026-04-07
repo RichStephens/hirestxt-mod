@@ -12,10 +12,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install build prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmoc lwtools
+          sudo apt-get install -y build-essential flex bison
+
+      - name: Build and install lwtools
+        run: |
+          curl -O http://www.lwtools.ca/releases/lwtools/lwtools-4.24.tar.gz
+          tar xzf lwtools-4.24.tar.gz
+          make -C lwtools-4.24
+          sudo make -C lwtools-4.24 install
+
+      - name: Build and install cmoc
+        run: |
+          curl -O http://gvlsywt.cluster051.hosting.ovh.net/dev/cmoc-0.1.98.tar.gz
+          tar xzf cmoc-0.1.98.tar.gz
+          cd cmoc-0.1.98 && ./configure && make && sudo make install
 
       - name: Get version from tag
         id: version
