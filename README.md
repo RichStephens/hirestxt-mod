@@ -1,12 +1,26 @@
 hirestxt
 ========
 
-NOTE: This library is a modification of the original hirestxt
-library by by Pierre Sarrazin <http://sarrazip.com/>
+## Modifications to the Original Library
 
-The only real difference is that the 42x24 font has been modified
-so that the chracters 160-185 have been changed to line-drawing
-characters, such as lines and box corners.
+This is a modified version of the original hirestxt library by Pierre Sarrazin.
+The original library can be found at:
+http://gvlsywt.cluster051.hosting.ovh.net/dev/hirestxt-0.5.1.tar.gz
+
+The following changes have been made relative to the original:
+
+**Font: line-drawing characters**
+The 42x24 font (font4x8) has been modified so that characters 160–185 are
+line-drawing characters (horizontal/vertical lines, box corners, etc.) instead
+of the original glyphs. The 51x24 font is unchanged.
+
+**New function: `clearRowsN()`**
+Added `clearRowsN(byte byteToClearWith, byte textRow, byte rowsToClear)` which
+clears a specified number of text rows starting at a given row. Significantly
+faster than clearing the full screen when only a portion needs to be erased.
+See `clearRowsN.c` and the declaration in `hirestxt.h`.
+
+---
 
 This library is in the public domain.
 
