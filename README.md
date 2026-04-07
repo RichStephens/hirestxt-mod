@@ -9,15 +9,24 @@ http://gvlsywt.cluster051.hosting.ovh.net/dev/hirestxt-0.5.1.tar.gz
 
 The following changes have been made relative to the original:
 
-**Font: line-drawing characters**
-The 42x24 font (font4x8) has been modified so that characters 160–185 are
-line-drawing characters (horizontal/vertical lines, box corners, etc.) instead
-of the original glyphs. The 51x24 font is unchanged.
+**Font: runtime-selectable line-drawing characters**
+In the 42-column mode, characters 160–185 are replaced with line-drawing
+glyphs (box corners, T-junctions, horizontal/vertical lines, cross, and block
+graphics). These are the default. To use the original ISO-8859-1 glyphs
+instead, set the global flag `useOriginal5x8Font = TRUE` before calling
+`initHiResTextScreen()`. The swap happens automatically during init and can be
+changed between init calls. The 51-column font is unaffected.
+
+The line-drawing glyphs are designed to connect seamlessly: horizontal lines
+extend to the full 6-pixel cell width (no gap at the right edge), and
+T-junction and cross characters align their horizontal bar at the same pixel
+row as the standalone horizontal line character so that lines are continuous
+across character boundaries.
 
 **New function: `clearRowsN()`**
-Added `clearRowsN(byte byteToClearWith, byte textRow, byte rowsToClear)` which
-clears a specified number of text rows starting at a given row. Significantly
-faster than clearing the full screen when only a portion needs to be erased.
+`clearRowsN(byte byteToClearWith, byte textRow, byte rowsToClear)` clears a
+specified number of text rows starting at a given row. Significantly faster
+than clearing the full screen when only a portion needs to be erased.
 See `clearRowsN.c` and the declaration in `hirestxt.h`.
 
 ---

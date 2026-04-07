@@ -14,7 +14,9 @@
 // Bit 3 is always set.
 // The 2 low bits of each byte are zero.
 //
-extern const unsigned char font5x8[1536];
+extern unsigned char font5x8[1536];
+
+extern const unsigned char font5x8_original_160_185[208];
 
 
 #endif  /* _font5x8_h_ */

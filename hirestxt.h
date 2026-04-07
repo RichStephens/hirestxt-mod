@@ -390,4 +390,11 @@ word *OS9Timer_getTimerAddress(void);
 #endif  /* OS9 */
 
 
+// When TRUE, initHiResTextScreen() and initHiResTextScreen2() will use the
+// original font5x8 glyphs for characters 160-185 instead of the default
+// line-drawing characters. Must be set before calling init. Default is FALSE.
+//
+extern BOOL useOriginal5x8Font;
+
+
 #endif  /* _hirestxt_h_ */
