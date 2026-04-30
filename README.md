@@ -29,6 +29,16 @@ specified number of text rows starting at a given row. Significantly faster
 than clearing the full screen when only a portion needs to be erased.
 See `clearRowsN.c` and the declaration in `hirestxt.h`.
 
+**New function: `setScreenInverted()`**
+`setScreenInverted(BOOL invert)` globally inverts the PMODE 4 text screen:
+`clear()` fills with black instead of the foreground color, and characters
+render in the foreground color on a black background. `setInverseVideoMode()`
+XOR-combines with this flag, so it restores the original (un-inverted) look
+within an otherwise inverted screen. The cursor blink (XOR-based) continues
+to work normally over inverted text. Only takes effect in PMODE 4 (1-bit-per-
+pixel) modes (51x24 and 42x24); has no effect in the CoCo 3 320x192x16 mode.
+The demo's screen-inversion page exercises both flags together.
+
 ---
 
 This library is in the public domain.

@@ -222,8 +222,6 @@ void clear(void);
 
 // Fills n rows of the screen with spaces (does not move the cursor).
 //
-void clear(void);
-
 void clearn(byte n);
 
 
@@ -299,6 +297,18 @@ byte waitKeyBlinkingCursor(void);
 // FALSE to go back to normal colors.
 //
 void setInverseVideoMode(BOOL invert);
+
+
+// Pass TRUE to globally invert the screen: clear() fills with black
+// instead of the foreground color, and characters render in the
+// foreground color on a black background. setInverseVideoMode() then
+// restores the original (un-inverted) appearance, since the two flags
+// XOR-combine.
+//
+// Only takes effect in PMODE 4 (1-bit-per-pixel) modes (51x24 and 42x24).
+// Has no effect in 4-bit-per-pixel modes (320x192x16).
+//
+void setScreenInverted(BOOL invert);
 
 
 // Pass TRUE to start writing characters in bold,

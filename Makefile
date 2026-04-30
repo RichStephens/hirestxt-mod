@@ -51,6 +51,7 @@ LIBSRC = \
 	writeCharAt_320x16.c \
 	font4x8.c \
 	setInverseVideoMode.c \
+	setScreenInverted.c \
 	setBoldMode.c
 
 OS9_GRAPHICS_SRC = \
@@ -89,6 +90,7 @@ endif
 
 DEMOSRC = $(PACKAGE)-demo.c
 DEMOBIN = $(PACKAGE)$(EXEEXT)
+DISKIMG = $(PACKAGE).dsk
 
 DISTFILES = README.md Makefile $(LIBHEADERS) \
 		$(LIBSRC) \
@@ -128,6 +130,16 @@ $(DEMOBIN): $(DEMOOBJ) $(STATICLIB)
 $(STATICLIB): $(LIBOBJ)
 	$(LWAR) --create $(STATICLIB) $(LIBOBJ)
 
+ifeq "$(TARGET)" "coco"
+.PHONY: dsk
+dsk: $(DISKIMG)
+
+$(DISKIMG): $(DEMOBIN)
+	rm -f $@
+	decb dskini $@
+	decb copy -2 -b -r $(DEMOBIN) $@,HIRESTXT.BIN
+endif
+
 %.demo.o: %.c
 	$(CMOC) -c $(CFLAGS) $(DEMO_EXTRA_CFLAGS) -o $@ $<
 
@@ -135,7 +147,7 @@ $(STATICLIB): $(LIBOBJ)
 	$(CMOC) -c $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f $(DEMOBIN) $(DEMOOBJ) $(STATICLIB) $(LIBOBJ)
+	rm -f $(DEMOBIN) $(DEMOOBJ) $(STATICLIB) $(LIBOBJ) $(DISKIMG)
 
 .PHONY: dist distcheck
 dist:

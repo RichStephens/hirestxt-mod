@@ -12,6 +12,7 @@ HiResTextConfig hiResTextConfig;
 
 BOOL inverseVideoMode = FALSE;
 BOOL boldMode = FALSE;
+BOOL screenInverted = FALSE;
 BOOL useOriginal5x8Font = FALSE;
 
 
@@ -92,6 +93,7 @@ void hiResTextCommonInit(const struct HiResTextScreenInit *init)
 
     inverseVideoMode = FALSE;
     boldMode = FALSE;
+    screenInverted = FALSE;
 
     if (useOriginal5x8Font)
     {

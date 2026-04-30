@@ -150,7 +150,7 @@ static BOOL demoContents(BOOL use4x8Font, BOOL useCoCo3Screen)
            "of VT52 sequences <ESC> p and <ESC> q.");
 
     line = 7;
-    byte col = 10;
+    byte col = (cols - 35) / 2;  // 3 in 42-col mode, 8 in 51-col mode
     moveCursor(col, line);
     printf("This line starts at column %u\n"
            "of line %u because of moveCursor().\n", col, line);
@@ -198,6 +198,55 @@ static BOOL demoContents(BOOL use4x8Font, BOOL useCoCo3Screen)
 
     if (waitKeyBlinkingCursor() == BREAK)
         return FALSE;
+
+    // Demo setScreenInverted (PMODE 4 modes only).
+    //
+    if (!useCoCo3Screen)
+    {
+        clrscr();
+        writeCenteredLine(2, " Screen inversion demo ");
+        writeCenteredLine(5, "This is the default screen:");
+        writeCenteredLine(6, "dark text on a light background.");
+        moveCursor(0, 9);
+        printf("setInverseVideoMode(TRUE) gives\n");
+        setInverseVideoMode(TRUE);
+        printf("inverted text");
+        setInverseVideoMode(FALSE);
+        printf(" within the normal screen.");
+        writeCenteredLine(20, "Press a key to invert the screen: ");
+        if (waitKeyBlinkingCursor() == BREAK)
+            return FALSE;
+
+        setScreenInverted(TRUE);
+        clrscr();
+        writeCenteredLine(2, " Screen inversion demo (inverted) ");
+        writeCenteredLine(5, "After setScreenInverted(TRUE) the");
+        writeCenteredLine(6, "screen background is now dark.");
+        moveCursor(0, 9);
+        printf("setInverseVideoMode(TRUE) now restores\n");
+        setInverseVideoMode(TRUE);
+        printf("the original look");
+        setInverseVideoMode(FALSE);
+        printf(" within an otherwise\ninverted screen.");
+        moveCursor(0, 13);
+        printf("Bold ");
+        setBoldMode(TRUE);
+        printf("characters");
+        setBoldMode(FALSE);
+        printf(" still work too.");
+
+        line = 16;
+        moveCursor(0, line);
+        writeString("The cursor still blinks over text.");
+        moveCursor(0, line + 1);
+        writeString("Press a key to continue.");
+        moveCursor(24, line);  // 'o' of "over"
+
+        BOOL inversionContinue = (waitKeyBlinkingCursor() != BREAK);
+        setScreenInverted(FALSE);
+        if (!inversionContinue)
+            return FALSE;
+    }
 
     if (useCoCo3Screen)
     {

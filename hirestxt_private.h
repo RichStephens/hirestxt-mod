@@ -51,6 +51,12 @@ extern BOOL inverseVideoMode;
 //
 extern BOOL boldMode;
 
+// When TRUE, the entire screen is treated as inverted: clear() fills
+// with 0x00 instead of 0xFF, and per-character rendering XOR-combines
+// with this flag. Only takes effect in PMODE 4 (1-bit-per-pixel) modes.
+//
+extern BOOL screenInverted;
+
 
 #ifndef HIRESTEXT_NO_VT52
 

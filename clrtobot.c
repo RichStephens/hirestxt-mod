@@ -11,7 +11,7 @@ void clrtobot(void)
 {
     byte bgColorMask = hiResTextConfig.numBitsPerPixel == 4
                                     ? hiResTextConfig.bgColorMask
-                                    : 0xFF;
+                                    : (screenInverted ? 0x00u : 0xFFu);
     byte dy;
     if (hiResTextConfig.textPosX > 0)
     {

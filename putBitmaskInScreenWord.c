@@ -13,8 +13,19 @@ void putBitmaskInScreenWord(byte asciiCode, word *screenWord,
 {
     word charWord, invMask;
     byte row;
+    byte effInvert;
     asm
     {
+; Compute effective inverse: inverseVideoMode XOR screenInverted.
+        lda     :inverseVideoMode
+        beq     @effInv_chkScreen
+        lda     #1
+@effInv_chkScreen
+        ldb     :screenInverted
+        beq     @effInv_done
+        eora    #1
+@effInv_done
+        sta     :effInvert
 ; Cache an inverted mask if inverting colors is needed.
         ldd     :mask
         coma
@@ -62,7 +73,7 @@ void putBitmaskInScreenWord(byte asciiCode, word *screenWord,
         leax    -1,x
         bne     @writeCharAt_shift_loop
 @writeCharAt_shifts_done
-        tst     :inverseVideoMode       ; global boolean
+        tst     :effInvert              ; inverseVideoMode XOR screenInverted
         beq     @noInvert
         eora    :invMask
         eorb    :invMask[1]

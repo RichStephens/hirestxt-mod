@@ -19,7 +19,7 @@ void scrollTextScreenUp(void)
 
     word wordToClearWith = (hiResTextConfig.numBitsPerPixel == 4
                                 ? (hiResTextConfig.bgColorMask | ((word) hiResTextConfig.bgColorMask << 8))
-                                : 0xFFFFu);
+                                : (screenInverted ? 0x0000u : 0xFFFFu));
     asm
     {
         ldx     :buffer
