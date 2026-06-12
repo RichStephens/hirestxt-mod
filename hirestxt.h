@@ -133,6 +133,14 @@ void initHiResTextScreen2(const struct HiResTextScreenInit2 *init);
 void closeHiResTextScreen(void);
 
 
+// Redirects all subsequent text output to the given graphics buffer,
+// without changing which buffer is displayed. Useful for double-buffering.
+// newTextScreenBuffer: same constraints as the textScreenBuffer field of
+// the HiResTextScreenInit object passed to initHiResTextScreen().
+//
+void setHiResTextBuffer(byte *newTextScreenBuffer);
+
+
 // Writes a PRINTABLE 4x8 character at column x and row y of a 51x24 text screen.
 // x: 0..hiResWidth-1.
 // y: 0..HIRESHEIGHT-1.

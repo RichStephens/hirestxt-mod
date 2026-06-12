@@ -52,7 +52,8 @@ LIBSRC = \
 	font4x8.c \
 	setInverseVideoMode.c \
 	setScreenInverted.c \
-	setBoldMode.c
+	setBoldMode.c \
+	setHiResTextBuffer.c
 
 OS9_GRAPHICS_SRC = \
 	showOS9PMode4Screen.c \

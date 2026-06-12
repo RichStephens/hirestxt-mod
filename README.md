@@ -39,6 +39,16 @@ to work normally over inverted text. Only takes effect in PMODE 4 (1-bit-per-
 pixel) modes (51x24 and 42x24); has no effect in the CoCo 3 320x192x16 mode.
 The demo's screen-inversion page exercises both flags together.
 
+**New function: `setHiResTextBuffer()`**
+`setHiResTextBuffer(byte *newTextScreenBuffer)` redirects all subsequent text
+output to the given graphics buffer without changing which buffer is displayed.
+This enables double-buffering: draw a frame on a hidden buffer, then make it
+visible (e.g. with CMOC's `setPmodeGraphicsAddress()`), and alternate. The new
+buffer must satisfy the same constraints as the `textScreenBuffer` field of
+`HiResTextScreenInit`. The cursor position is global and is not affected by
+switching buffers. See `setHiResTextBuffer.c` and the declaration in
+`hirestxt.h`.
+
 ---
 
 This library is in the public domain.
