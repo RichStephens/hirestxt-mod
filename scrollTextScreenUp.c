@@ -17,8 +17,10 @@ void scrollTextScreenUp(void)
     byte *buffer = hiResTextConfig.textScreenBuffer;
     const byte *readPtr = buffer + bytesPerPixelRow * PIXEL_ROWS_PER_TEXT_ROW;
 
+    byte scrollFillMask = (screenInverted ? hiResTextConfig.fgColorMask
+                                          : hiResTextConfig.bgColorMask);
     word wordToClearWith = (hiResTextConfig.numBitsPerPixel == 4
-                                ? (hiResTextConfig.bgColorMask | ((word) hiResTextConfig.bgColorMask << 8))
+                                ? (scrollFillMask | ((word) scrollFillMask << 8))
                                 : (screenInverted ? 0x0000u : 0xFFFFu));
     asm
     {

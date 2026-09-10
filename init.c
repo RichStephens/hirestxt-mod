@@ -5,7 +5,6 @@
 */
 
 #include "hirestxt_private.h"
-#include "font5x8.h"
 
 
 HiResTextConfig hiResTextConfig;
@@ -13,7 +12,7 @@ HiResTextConfig hiResTextConfig;
 BOOL inverseVideoMode = FALSE;
 BOOL boldMode = FALSE;
 BOOL screenInverted = FALSE;
-BOOL useOriginal5x8Font = FALSE;
+BOOL trueBoldMode = TRUE;
 
 
 #if defined(_COCO_BASIC_) || defined(DRAGON)
@@ -94,13 +93,5 @@ void hiResTextCommonInit(const struct HiResTextScreenInit *init)
     inverseVideoMode = FALSE;
     boldMode = FALSE;
     screenInverted = FALSE;
-
-    if (useOriginal5x8Font)
-    {
-        unsigned char *dst = font5x8 + (160 - 32) * 8;
-        const unsigned char *src = font5x8_original_160_185;
-        byte i;
-        for (i = 0; i < 208; ++i)
-            dst[i] = src[i];
-    }
+    trueBoldMode = TRUE;
 }

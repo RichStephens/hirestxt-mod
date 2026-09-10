@@ -2,7 +2,7 @@
 # This file is in the public domain.
 
 PACKAGE = hirestxt
-VERSION = 0.5.0
+VERSION = 0.5.0.4
 
 TARGET = coco
 
@@ -53,7 +53,11 @@ LIBSRC = \
 	setInverseVideoMode.c \
 	setScreenInverted.c \
 	setBoldMode.c \
-	setHiResTextBuffer.c
+	setHiResTextBuffer.c \
+	setOriginalFont5x8.c \
+	setOriginalFont4x8.c \
+	hirestxt_version.c \
+	setTrueBold.c
 
 OS9_GRAPHICS_SRC = \
 	showOS9PMode4Screen.c \

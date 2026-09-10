@@ -87,7 +87,7 @@ struct HiResTextScreenInit2
     byte numPixelsRowPerScreen;  // if 0, 192 is assumed (CAUTION: Only 192 is supported by this version)
     byte numBitsPerPixel;        // if 0, 1 is assumed
     byte fgColor;                // default foreground color (0..15); only used in 4-bit pixel modes
-    byte fgBoldColor;            // bold foreground color (0..15); only used in 4-bit pixel modes
+    byte fgBoldColor;            // bold color (0..15); 4-bit pixel modes, and only after setTrueBold(FALSE)
     byte bgColor;                // background color (0..15); only used in 4-bit pixel modes
 };
 
@@ -131,6 +131,15 @@ void initHiResTextScreen2(const struct HiResTextScreenInit2 *init);
 // by initHiResTextScreen().
 //
 void closeHiResTextScreen(void);
+
+
+// Returns this library's version as a null-terminated string, e.g. "0.5.0.4".
+//
+// The string is baked in when the library itself is built, so it describes
+// the libhirestxt.a that was actually linked, not whatever hirestxt.h
+// happens to accompany it.
+//
+const char *hirestxt_version(void);
 
 
 // Redirects all subsequent text output to the given graphics buffer,
@@ -313,8 +322,11 @@ void setInverseVideoMode(BOOL invert);
 // restores the original (un-inverted) appearance, since the two flags
 // XOR-combine.
 //
-// Only takes effect in PMODE 4 (1-bit-per-pixel) modes (51x24 and 42x24).
-// Has no effect in 4-bit-per-pixel modes (320x192x16).
+// Works in every mode. In the 1-bit-per-pixel PMODE 4 modes (51x24 and
+// 42x24) the pixel sense is flipped; in the 4-bit-per-pixel 320x192x16
+// mode the foreground and background colors trade places, so clear()
+// fills with the foreground color and glyphs render background-on-
+// foreground.
 //
 void setScreenInverted(BOOL invert);
 
@@ -322,13 +334,42 @@ void setScreenInverted(BOOL invert);
 // Pass TRUE to start writing characters in bold,
 // FALSE to go back to non-bold.
 //
-// N.B.: Inverting bold characters is not supported in a 4-bit pixel mode.
+// See setTrueBold() for how bold is rendered in the 320x192x16 mode.
 //
 void setBoldMode(BOOL bold);
 
 
+// Chooses how setBoldMode(TRUE) renders in the 320x192x16 mode.
+//
+// TRUE (the default) thickens the glyph and keeps the foreground
+// color. FALSE restores the original behavior, drawing bold in the
+// color given to setForegroundBoldColor() at normal weight.
+//
+// Has no effect in the PMODE 4 modes, which always thicken.
+// Reset to TRUE by initHiResTextScreen()/initHiResTextScreen2().
+//
+// Under FALSE, inverted bold keeps the bold color on the glyph and takes
+// the same field color as inverted normal text, so bold stays readable as
+// bold either way round.
+//
+// N.B.: that makes the bold color the only cue, so it must differ from
+// BOTH the foreground and the background color. Matching the foreground
+// makes bold identical to normal text un-inverted, and invisible when
+// inverted; matching the background does the same the other way round.
+// True bold has no such constraint, marking bold by weight.
+//
+void setTrueBold(BOOL trueBold);
+
+
 // Change the text colors when using the 320x192x16 graphics mode.
 // color: 0..15.
+//
+// setForegroundBoldColor() only has an effect after setTrueBold(FALSE),
+// since true bold keeps the foreground color. In that mode the bold color
+// must differ from both the foreground and the background color, or bold
+// text becomes either indistinguishable from normal text or invisible,
+// depending on which it collides with and whether the text is inverted.
+// Nothing enforces this: all three colors are the caller's choice.
 //
 void setForegroundColor(byte color);
 void setForegroundBoldColor(byte color);
@@ -408,11 +449,22 @@ word *OS9Timer_getTimerAddress(void);
 #endif  /* OS9 */
 
 
-// When TRUE, initHiResTextScreen() and initHiResTextScreen2() will use the
-// original font5x8 glyphs for characters 160-185 instead of the default
-// line-drawing characters. Must be set before calling init. Default is FALSE.
+// Characters 160-185 of both fonts hold line-drawing and block glyphs by
+// default. These calls choose which set is live: pass TRUE for the original
+// ISO-8859-1 glyphs, FALSE for the line-drawing ones. setOriginalFont5x8()
+// selects for the 42-column font, setOriginalFont4x8() for the 51-column
+// (and CoCo 3 64-column) font.
 //
-extern BOOL useOriginal5x8Font;
+// Callable at any time, as often as you like, and independent of init. The
+// font is consulted only as each character is written, so text already on
+// the screen keeps the glyphs it was drawn with: writing, switching, and
+// writing again puts both sets on screen at once.
+//
+// A program that calls neither one links neither the glyph table nor the
+// font it belongs to, so the fonts cost nothing unless used.
+//
+void setOriginalFont5x8(BOOL original);
+void setOriginalFont4x8(BOOL original);
 
 
 #endif  /* _hirestxt_h_ */

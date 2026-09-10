@@ -10,7 +10,8 @@
 void clear(void)
 {
     byte byteToClearWith = (hiResTextConfig.numBitsPerPixel == 4
-                                ? hiResTextConfig.bgColorMask
+                                ? (screenInverted ? hiResTextConfig.fgColorMask
+                                                  : hiResTextConfig.bgColorMask)
                                 : (screenInverted ? 0x00u : 0xFFu));
     clearRowsToEOS(byteToClearWith, 0);
 }
@@ -18,7 +19,8 @@ void clear(void)
 void clearn(byte n)
 {
     byte byteToClearWith = (hiResTextConfig.numBitsPerPixel == 4
-                                ? hiResTextConfig.bgColorMask
+                                ? (screenInverted ? hiResTextConfig.fgColorMask
+                                                  : hiResTextConfig.bgColorMask)
                                 : (screenInverted ? 0x00u : 0xFFu));
     clearRowsN(byteToClearWith, 0, n);
 }

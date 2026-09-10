@@ -18,7 +18,7 @@ typedef struct HiResTextConfig
     // These colors masks contain two identical nybbles.
     // They are only used in 4-bpp modes.
     byte fgColorMask;            // default foreground color byte
-    byte fgBoldColorMask;        // used when boldMode is non-zero
+    byte fgBoldColorMask;        // used when boldMode is set and trueBoldMode is not
     byte bgColorMask;            // background color byte
 
     byte textPosX;
@@ -51,9 +51,17 @@ extern BOOL inverseVideoMode;
 //
 extern BOOL boldMode;
 
+// When TRUE, bold thickens the glyph and keeps the foreground color.
+// When FALSE, bold instead selects fgBoldColorMask without thickening.
+// Only distinguishable at 4 bits per pixel; the 1-bpp writers always
+// thicken, having no second color to use.
+//
+extern BOOL trueBoldMode;
+
 // When TRUE, the entire screen is treated as inverted: clear() fills
 // with 0x00 instead of 0xFF, and per-character rendering XOR-combines
-// with this flag. Only takes effect in PMODE 4 (1-bit-per-pixel) modes.
+// with this flag. At 4 bits per pixel the foreground and background
+// color masks trade places instead.
 //
 extern BOOL screenInverted;
 

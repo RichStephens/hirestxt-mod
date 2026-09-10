@@ -14,9 +14,11 @@
 // Bit 3 is always set.
 // The 2 low bits of each byte are zero.
 //
+// Characters 160-185 hold line-drawing and block glyphs by default.
+// Not const: useOriginalFont5x8() overwrites them with the original
+// ISO-8859-1 glyphs.
+//
 extern unsigned char font5x8[1536];
-
-extern const unsigned char font5x8_original_160_185[208];
 
 
 #endif  /* _font5x8_h_ */

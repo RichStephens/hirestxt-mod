@@ -47,7 +47,8 @@ byte convertTaysteTo4BitPixels(byte tayste, byte fgColorMask)
 }
 
 
-// Uses hiResTextConfig, inverseVideoMode and boldMode.
+// Uses hiResTextConfig, inverseVideoMode, screenInverted, boldMode
+// and trueBoldMode.
 // Assumes that hiResTextConfig.numPixelsPerRow == 320 and
 // hiResTextConfig.numBitsPerPixel == 4.
 // Uses font4x8[]. Assumes 5-bit-wide glyphs.
@@ -130,15 +131,42 @@ void writeCharAt_320x16(byte x, byte y, byte asciiCode)
     }
     #endif
 
-    const byte fgColorMask = (boldMode ? hiResTextConfig.fgBoldColorMask : hiResTextConfig.fgColorMask);
+    // True bold thickens the glyph below and keeps the caller's color;
+    // otherwise bold selects the separate bold color at normal weight.
+    const byte colorBold = (boldMode && !trueBoldMode);
+
+    // Effective inverse is inverseVideoMode XOR screenInverted, so the two
+    // flags cancel, as in putBitmaskInScreenWord() for 1 bpp.
+    const byte effInv = (inverseVideoMode ? 1 : 0) ^ (screenInverted ? 1 : 0);
+
+    // Inverting makes the field the foreground color and the glyph the
+    // background color. Built from fgColorMask even when bold, so that
+    // inverted bold sits on the same field as inverted normal text and
+    // differs by glyph color: deriving it from the bold color instead just
+    // recolors the field, leaving no cue that the text is bold.
+    const byte plainCombo = hiResTextConfig.fgColorMask ^ hiResTextConfig.bgColorMask;
+    const byte xorArg = (effInv ? plainCombo : 0);
+
+    // Ink wanted on screen, before the XOR above puts it there.
+    const byte inkColor = (colorBold
+                             ? hiResTextConfig.fgBoldColorMask
+                             : (effInv ? hiResTextConfig.bgColorMask
+                                       : hiResTextConfig.fgColorMask));
+    const byte fgColorMask = inkColor ^ xorArg;
 
     for (byte row = 0; row < PIXEL_ROWS_PER_TEXT_ROW; ++row)
     {
         if (asciiCode != 0)
         {
             byte charBitmaskByte = charBitmask[row];
-            byte xorArg = (inverseVideoMode ? fgColorMask ^ hiResTextConfig.bgColorMask : 0);
-                                  // N.B.: Does not support inverting bold color.
+
+            // Embolden by smearing each ink pixel one place right, as the
+            // PMODE 4 writers do. Ink is a reset bit, so a pixel stays paper
+            // only where it and its left neighbour both are; bit 7 has no
+            // left neighbour, hence the 0x80.
+            if (boldMode && !colorBold)
+                charBitmaskByte &= (charBitmaskByte >> 1) | 0x80;
+
 
             #ifndef USE_ASM
             #define SHIFT2 charBitmaskByte >>= 2
@@ -172,7 +200,7 @@ void writeCharAt_320x16(byte x, byte y, byte asciiCode)
         }
         else  // inverting colors instead of writing a character:
         {
-            byte maskCombo = fgColorMask ^ hiResTextConfig.bgColorMask;  // N.B.: Does not support inverting bold color.
+            byte maskCombo = plainCombo;
             if ((x & 1) == 0)  // if x is even
             {
                 screenByte[0] ^= maskCombo;

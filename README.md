@@ -9,35 +9,114 @@ http://gvlsywt.cluster051.hosting.ovh.net/dev/hirestxt-0.5.1.tar.gz
 
 The following changes have been made relative to the original:
 
-**Font: runtime-selectable line-drawing characters**
-In the 42-column mode, characters 160–185 are replaced with line-drawing
-glyphs (box corners, T-junctions, horizontal/vertical lines, cross, and block
-graphics). These are the default. To use the original ISO-8859-1 glyphs
-instead, set the global flag `useOriginal5x8Font = TRUE` before calling
-`initHiResTextScreen()`. The swap happens automatically during init and can be
-changed between init calls. The 51-column font is unaffected.
+**Font: line-drawing characters in both fonts**
+Characters 160–185 are replaced with line-drawing glyphs (box corners,
+T-junctions, horizontal/vertical lines, cross, and block graphics) in both the
+42-column (5x8) and the 51-column (4x8) font. These are the default. Call
+`setOriginalFont5x8(TRUE)` or `setOriginalFont4x8(TRUE)` for the original
+ISO-8859-1 glyphs, and `FALSE` to go back. The 4x8 font is also the one used by
+the CoCo 3's 64-column 320x192x16 mode.
+
+Either set can be selected at any time, as often as you like, independently of
+init. A single 208-byte table holds whichever set is not currently live and the
+two are exchanged in place, so switching costs no more memory than a one-way
+replacement would.
+
+Because the font is consulted only as each character is written, text already
+on the screen keeps the glyphs it was drawn with. Writing, switching, and
+writing again therefore puts both sets on screen simultaneously — which is what
+the demo's second page does.
+
+Neither font is linked into a program that does not draw with it, and the
+replacement tables are linked only into a program that calls for them, so an
+application pays only for the font and the option it actually uses.
 
 The line-drawing glyphs are designed to connect seamlessly: horizontal lines
-extend to the full 6-pixel cell width (no gap at the right edge), and
-T-junction and cross characters align their horizontal bar at the same pixel
-row as the standalone horizontal line character so that lines are continuous
-across character boundaries.
+span the full cell width (no gap at the right edge), and T-junction and cross
+characters align their horizontal bar at the same pixel row as the standalone
+horizontal line character so that lines are continuous across character
+boundaries. The 4x8 cell is 5 pixels wide — an odd number — so its vertical
+strokes and crosses sit on an exact center column, which the 6-pixel 5x8 cell
+has no room for. The 4x8 half-blocks likewise split evenly, so the thick left
+and right verticals tile into a solid with no seam down the middle.
 
 **New function: `clearRowsN()`**
 `clearRowsN(byte byteToClearWith, byte textRow, byte rowsToClear)` clears a
 specified number of text rows starting at a given row. Significantly faster
-than clearing the full screen when only a portion needs to be erased.
+than clearing the full screen when only a portion needs to be erased. It
+derives its row stride from the current mode, so it works in the PMODE 4
+modes and in the CoCo 3's 320x192x16 mode alike.
 See `clearRowsN.c` and the declaration in `hirestxt.h`.
 
+Two convenience wrappers come with it. `clearn(byte n)` fills the first `n`
+rows with spaces without moving the cursor, the row-limited counterpart of
+`clear()`; `clrscrn(byte n)` homes the cursor first, as `clrscr()` does. Both
+pick the right fill byte for the current mode, and honour `setScreenInverted()`
+the same way `clear()` does.
+
 **New function: `setScreenInverted()`**
-`setScreenInverted(BOOL invert)` globally inverts the PMODE 4 text screen:
-`clear()` fills with black instead of the foreground color, and characters
-render in the foreground color on a black background. `setInverseVideoMode()`
-XOR-combines with this flag, so it restores the original (un-inverted) look
-within an otherwise inverted screen. The cursor blink (XOR-based) continues
-to work normally over inverted text. Only takes effect in PMODE 4 (1-bit-per-
-pixel) modes (51x24 and 42x24); has no effect in the CoCo 3 320x192x16 mode.
-The demo's screen-inversion page exercises both flags together.
+`setScreenInverted(BOOL invert)` globally inverts the text screen, and works
+in every mode. In the PMODE 4 modes (51x24 and 42x24) the pixel sense is
+flipped: `clear()` fills with black instead of the foreground color, and
+characters render in the foreground color on a black background. In the CoCo
+3's 320x192x16 mode there is no pixel sense to flip, so the foreground and
+background colors trade places instead: `clear()` fills with the foreground
+color, glyphs render background-on-foreground, and a scrolled-in row matches.
+
+`setInverseVideoMode()` XOR-combines with this flag in both cases, so it
+restores the original (un-inverted) look within an otherwise inverted screen.
+The cursor blink (XOR-based) continues to work normally over inverted text.
+The demo's screen-inversion page exercises both flags together, in all modes.
+
+**New function: `hirestxt_version()`**
+`hirestxt_version()` returns this library's version as a string, e.g.
+`"0.5.0.4"`. The value is compiled into the library from `VERSION` in the
+Makefile, so it describes the `libhirestxt.a` that was actually linked rather
+than whatever `hirestxt.h` happens to sit beside it. A calling program cannot
+see the Makefile's `-DVERSION` define, so this call is the only way to ask.
+Costs nothing unless called.
+
+**New function: `setTrueBold()`**
+`setTrueBold(BOOL trueBold)` chooses how `setBoldMode(TRUE)` renders in the
+CoCo 3's 320x192x16 mode.
+
+`TRUE`, the default, is *true bold*: the glyph is thickened by smearing each
+ink pixel one place to the right, the same technique the PMODE 4 writers use,
+and the caller's foreground color is kept. `FALSE` restores the original
+library's behavior, which drew bold at normal weight in the separate color set
+by `setForegroundBoldColor()`.
+
+The flag has no effect in the PMODE 4 modes, which always thicken because they
+have no second color available. It is reset to `TRUE` by
+`initHiResTextScreen()` and `initHiResTextScreen2()`.
+
+Inverted bold under `FALSE` keeps the bold color on the glyph and takes the
+same field color as inverted normal text, so bold reads as bold either way
+round. The original library built its inversion mask from the bold color
+instead, which recolored the field and left no cue that the text was bold —
+the limitation its `writeCharAt_320x16.c` warned about.
+
+Colour being the only cue on that path, the bold color must differ from
+**both** the foreground and the background. Matching the foreground makes bold
+identical to normal text un-inverted and invisible inverted; matching the
+background does the same the other way round. Nothing enforces this, and
+`setForegroundColor()` changes only the foreground, so a program that switches
+its foreground to the color already used for bold silently loses the
+distinction. True bold has none of this, marking bold by weight.
+
+Thickening has one consequence: the 4x8 cell's last pixel doubles as the
+inter-character gap, so a bold stroke reaching the fourth pixel touches the
+next character. The PMODE 4 modes behave the same way. The demo's bold page
+renders the same sentence both ways for comparison.
+
+**Fixed: the font swap wrote to the wrong glyphs**
+The font array runs 32–127 then 160–255, with no entries for 128–159, so
+character 160 sits at entry 96. The original swap code addressed it as entry
+128 (`(160 - 32) * 8`) and so overwrote characters 192–217 — the accented
+capitals À–Ù — while leaving 160–185 untouched. Selecting the original glyphs
+therefore never worked and quietly corrupted other characters instead. Present
+in releases 0.5.0.1 through 0.5.0.4; harmless to any program that left the
+option alone, which was the default.
 
 **New function: `setHiResTextBuffer()`**
 `setHiResTextBuffer(byte *newTextScreenBuffer)` redirects all subsequent text
@@ -49,13 +128,20 @@ buffer must satisfy the same constraints as the `textScreenBuffer` field of
 switching buffers. See `setHiResTextBuffer.c` and the declaration in
 `hirestxt.h`.
 
+It is a plain pointer change and so works in any mode, but it only redirects
+*writes*. On the CoCo 3 you must also point the GIME at the other buffer by
+writing its address to `$FF9D`, and at 30,720 bytes per 320x192x16 buffer two
+of them nearly fill the 64K logical address space, so in practice the second
+buffer lives in another physical block and the MMU does the switching — in
+which case remapping alone redirects the writes and this call is not needed.
+
 ---
 
 This library is in the public domain.
 
 It implements a software 51x24 or 42x24 black-on-green PMODE 4 text
 screen (256x192x2), or a 64x24 16-color text screen in the CoCo 3's
-320x200x16 graphics mode. It redirects printf() to that screen.
+320x192x16 graphics mode. It redirects printf() to that screen.
 
 Useful to get true lowercase, including Latin-1 accented characters,
 on all CoCos, on the Dragon, and on NitrOS-9.
