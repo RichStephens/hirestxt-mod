@@ -114,6 +114,9 @@ graphics drawn straight into it. Page layouts are derived from the column
 count rather than written per mode, so all three modes lay themselves out and
 a new width would too.
 
+Caught up with upstream 0.5.1: dropped non-breaking spaces, which some
+versions of GCC refuse to compile.
+
 ## 0.5.0.4
 
 ### Double buffering

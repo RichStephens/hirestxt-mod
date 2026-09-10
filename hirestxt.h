@@ -26,7 +26,7 @@ typedef void (*WriteCharAtFuncPtr)(byte x, byte y, byte asciiCode);
 // Useful for 51x24 and 42x24 text screens on a PMODE 4 screen.
 //
 // To have a 64x24 text screen in the CoCo 3's 320x192x16 mode,
-// call initHiResTextScreen2() instead.
+// call initHiResTextScreen2() instead.
 //
 // numColumns: Number of characters per text row, in PMODE 4: 42 or 51.
 //             If using a 320x192x16 mode, pass 51 to get 64-column screen.
@@ -107,7 +107,7 @@ enum
 // See struct HiResTextScreenInit above.
 //
 // To have a 64x24 text screen in the CoCo 3's 320x192x16 mode,
-// call initHiResTextScreen2() instead.
+// call initHiResTextScreen2() instead.
 //
 // Does not keep a reference of the HiResTextScreenInit object.
 //
