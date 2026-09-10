@@ -4,7 +4,11 @@ Notes for each release. The section whose heading matches a tag becomes that
 release's description on GitHub, with the generated commit list appended below
 it, so writing a release note is just editing this file before tagging.
 
-## Unreleased
+## 0.5.1.5
+
+The first three components now track the upstream release this is based on,
+0.5.1; the fourth counts this fork's own releases. Earlier tags read 0.5.0.x
+and so sorted below the upstream they derived from.
 
 ### Line-drawing and block glyphs in both fonts
 
