@@ -43,8 +43,25 @@ jobs:
         run: |
           tar -czf hirestxt-mod-bin-${{ steps.version.outputs.VERSION }}.tar.gz libhirestxt.a hirestxt.h
 
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          python3 - "$GITHUB_REF_NAME" <<'PY' > RELEASE_NOTES.md
+          import re, sys
+          tag = sys.argv[1]
+          try:
+              text = open('CHANGELOG.md', encoding='utf-8').read()
+          except OSError:
+              sys.exit(0)          # no changelog: fall back to generated notes
+          m = re.search(r'^##\s+' + re.escape(tag) + r'\s*$(.*?)(?=^##\s|\Z)',
+                        text, re.M | re.S)
+          if m:
+              sys.stdout.write(m.group(1).strip() + '\n')
+          PY
+          echo "--- release body ---"; cat RELEASE_NOTES.md
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           files: hirestxt-mod-bin-${{ steps.version.outputs.VERSION }}.tar.gz
+          body_path: RELEASE_NOTES.md
           generate_release_notes: true

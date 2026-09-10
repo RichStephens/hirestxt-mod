@@ -58,3 +58,6 @@ dkms.conf
 # Build output
 *.bin
 *.dsk
+
+# Local tool settings
+.claude/
