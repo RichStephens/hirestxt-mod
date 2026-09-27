@@ -33,9 +33,12 @@ typedef struct HiResTextConfig
     void (*bellFuncPtr)(void);
 
     #ifndef HIRESTEXT_NO_VT52
-    byte vt52State;  // 0..HIRESHEIGHT-1, unlike VT52 spec which starts at 1.
-    byte vt52Line;  // 0..HIRESHEIGHT-1, unlike VT52 spec which starts at 1.
+    byte vt52State;  // one of the VT52_* states below
+    byte vt52Line;  // requested line, 0-based; may be out of range
     byte vt52NumBytesToIgnore;  // Number of coming bytes that will be ignored (see VT52_IGNORE_NEXT).
+    BOOL (*vt52SetOriginalFont)(BOOL);  // set by the renderer in use; NULL until it first draws
+    BOOL vt52Graphics;          // between ESC F and ESC G
+    BOOL vt52FontWasOriginal;   // font state to restore on ESC G
     #endif  /* HIRESTEXT_NO_VT52 */
 } HiResTextConfig;
 
@@ -82,6 +85,11 @@ enum
 
 
 void hiResTextConsoleOutHook(void);
+
+
+// Scrolls the text screen down one row, clearing the top row.
+//
+void scrollTextScreenDown(void);
 
 
 #if defined(_COCO_BASIC_) || defined(DRAGON)

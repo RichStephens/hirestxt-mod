@@ -55,18 +55,21 @@ byte convertTaysteTo4BitPixels(byte tayste, byte fgColorMask)
 //
 void writeCharAt_320x16(byte x, byte y, byte asciiCode)
 {
+#ifndef HIRESTEXT_NO_VT52
+    hiResTextConfig.vt52SetOriginalFont = setOriginalFont4x8;  // for VT52 graphics mode
+#endif
     // Row of bytes in 320x16:
     //
     // Bytes:           0000000011111111222222223333333344444444... (5 bytes shown)
     // 4-bit pixels:    ====----====----====----====----====----... (10 pixels shown)
-    // 51-column chars: ********************++++++++++++++++++++... (2 chars shown)
+    // 64-column chars: ********************++++++++++++++++++++... (2 chars shown)
     //
-    // When x is an even text column (0, 2, ..., 50), screenByte will
+    // When x is an even text column (0, 2, ..., 62), screenByte will
     // point to a 3-byte region whose first 20 bits will get overwritten
     // with the glyph represented by asciiCode.
     // The other 4 bits will remain unmodified.
     //
-    // When x is an odd text column (1, 3, ..., 49), screenByte will
+    // When x is an odd text column (1, 3, ..., 63), screenByte will
     // point to a 3-byte region whose LAST 20 bits will get overwritten.
     // The FIRST 4 bits will remain unmodified.
     //
@@ -162,8 +165,8 @@ void writeCharAt_320x16(byte x, byte y, byte asciiCode)
 
             // Embolden by smearing each ink pixel one place right, as the
             // PMODE 4 writers do. Ink is a reset bit, so a pixel stays paper
-            // only where it and its left neighbour both are; bit 7 has no
-            // left neighbour, hence the 0x80.
+            // only where it and its left neighbor both are; bit 7 has no
+            // left neighbor, hence the 0x80.
             if (boldMode && !colorBold)
                 charBitmaskByte &= (charBitmaskByte >> 1) | 0x80;
 

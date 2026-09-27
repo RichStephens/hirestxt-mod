@@ -2,7 +2,7 @@
 # This file is in the public domain.
 
 PACKAGE = hirestxt
-VERSION = 0.5.1.5
+VERSION = 0.5.1.6
 
 TARGET = coco
 
@@ -35,6 +35,7 @@ LIBSRC = \
 	processConsoleOutChar.c \
 	putBitmaskInScreenWord.c \
 	removeCursor.c \
+	scrollTextScreenDown.c \
 	scrollTextScreenUp.c \
 	setForegroundColor.c \
 	setForegroundBoldColor.c \

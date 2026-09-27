@@ -5,8 +5,8 @@
     currently live in font4x8[], and the two are exchanged in place, so
     switching costs 208 bytes rather than the 416 two tables would need.
 
-    In its own file so a program that never calls this links neither the
-    table nor font4x8[] itself.
+    In its own file so only a program drawing with font4x8[] links it:
+    its renderer pulls it in for VT52 graphics mode.
 
     This file is in the public domain.
 */
@@ -51,11 +51,12 @@ static byte spareGlyphs[208] =
 static BOOL originalIsLive = FALSE;
 
 
-void setOriginalFont4x8(BOOL original)
+BOOL setOriginalFont4x8(BOOL original)
 {
+    BOOL was = originalIsLive;
     BOOL want = (original ? TRUE : FALSE);
-    if (want == originalIsLive)
-        return;                     // nothing to exchange
+    if (want == was)
+        return was;                 // nothing to exchange
 
     // The array runs 32..127 then 160..255, with no entries for
     // 128..159, so character 160 sits at entry 96 and not 128.
@@ -70,4 +71,5 @@ void setOriginalFont4x8(BOOL original)
     }
 
     originalIsLive = want;
+    return was;
 }

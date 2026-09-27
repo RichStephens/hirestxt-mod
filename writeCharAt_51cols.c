@@ -45,6 +45,9 @@ void putBitmaskInScreenWord(byte asciiCode, word *screenWord,
 
 void writeCharAt_51cols(byte x, byte y, byte asciiCode)
 {
+#ifndef HIRESTEXT_NO_VT52
+    hiResTextConfig.vt52SetOriginalFont = setOriginalFont4x8;  // for VT52 graphics mode
+#endif
 #if 0 // Original (tested) code in C:
     const byte frameCol = x % 8;
     word *screenWord = (word *) (hiResTextConfig.textScreenBuffer + ((word) y * 256) + x / 8 * 5 + frameByteAddrTable_51cols[frameCol]);

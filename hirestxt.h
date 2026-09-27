@@ -150,13 +150,12 @@ const char *hirestxt_version(void);
 void setHiResTextBuffer(byte *newTextScreenBuffer);
 
 
-// Writes a PRINTABLE 4x8 character at column x and row y of a 51x24 text screen.
+// Writes a PRINTABLE character at column x and row y, using the renderer
+// passed to init.
 // x: 0..hiResWidth-1.
 // y: 0..HIRESHEIGHT-1.
 // asciiCode: MUST be in the range 32..127 or 160..255, except if 0,
 // which means invert colors at position (x, y).
-// Uses textScreenBuffer, frameByteAddrTable[], frameBitOffsetTable[] and
-// frameMaskTable[].
 //
 // Does NOT advance the cursor.
 //
@@ -169,7 +168,7 @@ void writeCharAt(byte x, byte y, byte asciiCode);
 void writeCharAt_42cols(byte x, byte y, byte asciiCode);
 
 
-// Writes a character at position (x, y) on a 42x24 text screen
+// Writes a character at position (x, y) on a 51x24 text screen
 // in a 256x192x2 graphics mode.
 //
 void writeCharAt_51cols(byte x, byte y, byte asciiCode);
@@ -184,8 +183,7 @@ void writeCharAt_320x16(byte x, byte y, byte asciiCode);
 void invertPixelsAtCursor(void);
 
 
-// Scrolls the 51x24 screen one text row up.
-// Fills the bottom text row with set pixels.
+// Scrolls the text screen up one row, clearing the bottom row.
 //
 void scrollTextScreenUp(void);
 
@@ -254,7 +252,7 @@ void clrscrn(byte n);
 // Writes a character at the current cursor position and advances the cursor.
 // Scrolls the screen up one row if the cursor would go off the bottom.
 // Ignores non-printable characters.
-// str: Supports \a, \b, \t, \n, \f, \r.
+// Supports \a, \b, \t, \n, \f, \r.
 //
 void writeChar(byte ch);
 
@@ -381,7 +379,7 @@ void setBackgroundColor(byte color);
 
 #ifndef HIRESTEXT_NO_VT52
 
-// Resets the VT52 state machine.
+// Resets the VT52 state machine and leaves graphics mode.
 //
 void initVT52(void);
 
@@ -460,11 +458,13 @@ word *OS9Timer_getTimerAddress(void);
 // the screen keeps the glyphs it was drawn with: writing, switching, and
 // writing again puts both sets on screen at once.
 //
-// A program that calls neither one links neither the glyph table nor the
-// font it belongs to, so the fonts cost nothing unless used.
+// A program links only its own font's table: the renderer pulls it in for
+// VT52 graphics mode, or with HIRESTEXT_NO_VT52, a call to one of these does.
 //
-void setOriginalFont5x8(BOOL original);
-void setOriginalFont4x8(BOOL original);
+// Returns TRUE if the original set was live before the call.
+//
+BOOL setOriginalFont5x8(BOOL original);
+BOOL setOriginalFont4x8(BOOL original);
 
 
 #endif  /* _hirestxt_h_ */

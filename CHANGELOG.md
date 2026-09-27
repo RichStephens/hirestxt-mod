@@ -4,6 +4,36 @@ Notes for each release. The section whose heading matches a tag becomes that
 release's description on GitHub, with the generated commit list appended below
 it, so writing a release note is just editing this file before tagging.
 
+## 0.5.1.6
+
+### More VT52 sequences
+
+- **ESC I** (reverse line feed) moves the cursor up a line, scrolling the
+  screen down when it is already on the top line.
+- **ESC F** and **ESC G** enter and leave graphics mode. Characters 160-185
+  switch to the ISO-8859-1 set, the VT52 graphics characters are drawn from it
+  where it has a match (°, ±, ÷, ¶, ¹, ³, the full block) and as plain ASCII
+  where it does not, and ESC G restores the previous set. No setup is needed.
+
+### Fixed: ESC Y outside the screen was ignored
+
+A cursor address past the bottom now keeps the current line and still moves
+the column, and one past the right edge goes to the last column, as on a VT52.
+Previously the whole sequence was dropped and the text that followed landed
+wherever the cursor happened to be.
+
+### Font glyph tables and VT52 graphics mode
+
+Unless the library is built with `HIRESTEXT_NO_VT52`, each renderer now links
+its own font's 208-byte glyph table for graphics mode, about 330 bytes per
+program. The other font is still never linked. `setOriginalFont5x8()` and
+`setOriginalFont4x8()` now return the previous setting.
+
+### Demo
+
+A new page shows ESC F / ESC G, ESC Y past the right edge and the bottom, and
+ESC I scrolling the screen down.
+
 ## 0.5.1.5
 
 The first three components now track the upstream release this is based on,

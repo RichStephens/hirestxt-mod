@@ -382,7 +382,7 @@ static BOOL demoContents(BOOL use4x8Font, BOOL useCoCo3Screen)
         return FALSE;
 
     // VT52 demo via printf() (writeString() does not go
-    // through processVT52()). Here, we clear the screen
+    // through processConsoleOutChar()). Here, we clear the screen
     // without clrscr().
     //
     printf("\x1BH");  // cursor to home
@@ -426,6 +426,48 @@ static BOOL demoContents(BOOL use4x8Font, BOOL useCoCo3Screen)
     writeString(prompt1);
     moveCursor(col + 21, line);  // move to 'o' of "over"
 
+    if (waitKeyBlinkingCursor() == BREAK)
+        return FALSE;
+
+    // More VT52 sequences. Octal escapes, since "\x1BF" would parse as 0x1BF.
+    //
+    printf("\033H\033J");
+    setInverseVideoMode(TRUE);
+    writeCenteredLine(0, " More VT52 sequences ");
+    setInverseVideoMode(FALSE);
+
+    moveCursor(0, 2);
+    printf("<ESC> F selects graphics characters:\n"
+           "  fgj~ab becomes \033Ffgj~ab\033G\n"
+           "<ESC> G brings back line drawing: ");
+    writeChar(160);
+    writeChar(169);
+    writeChar(161);
+
+    moveCursor(0, 6);
+    printf("<ESC> Y past the right edge stops\n"
+           "at the last column:");
+    printf("\033Y%c%c<", 32 + 7, 32 + 100);
+
+    moveCursor(0, 9);
+    printf("<ESC> Y past the bottom keeps the\n"
+           "row and moves to column 30:");
+    printf("\033Y%c%c^", 32 + 40, 32 + 30);
+
+    moveCursor(0, 13);
+    printf("<ESC> I at the top row scrolls the\n"
+           "screen down. Press a key to try it: ");
+    if (waitKeyBlinkingCursor() == BREAK)
+        return FALSE;
+
+    for (byte i = 3; i > 0; --i)
+    {
+        printf("\033H\033I");
+        printf("Line inserted by <ESC> I #%u", i);
+    }
+
+    moveCursor(0, 22);
+    printf("Press a key to continue: ");
     if (waitKeyBlinkingCursor() == BREAK)
         return FALSE;
 
@@ -1154,7 +1196,7 @@ static BOOL demo(BOOL use4x8Font, BOOL useCoCo3Screen)
     // initHiResTextScreen() must be called first.
     // Assumes 4 graphics pages reserved at the current start of graphics RAM.
     // TRUE requests that printf() be redirected to the VT52 interpreter,
-    // which writes to the 51x24 screen.
+    // which writes to the text screen.
     //
     struct HiResTextScreenInit2 init =
         {

@@ -15,6 +15,9 @@ void initVT52(void)
     hiResTextConfig.vt52State = VT52_TEXT;
     hiResTextConfig.vt52Line = 0;
     hiResTextConfig.vt52NumBytesToIgnore = 0;
+    if (hiResTextConfig.vt52Graphics)
+        (*hiResTextConfig.vt52SetOriginalFont)(hiResTextConfig.vt52FontWasOriginal);
+    hiResTextConfig.vt52Graphics = FALSE;
 }
 
 

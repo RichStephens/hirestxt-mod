@@ -27,9 +27,10 @@ on the screen keeps the glyphs it was drawn with. Writing, switching, and
 writing again therefore puts both sets on screen simultaneously — which is what
 the demo's second page does.
 
-Neither font is linked into a program that does not draw with it, and the
-replacement tables are linked only into a program that calls for them, so an
-application pays only for the font and the option it actually uses.
+Neither font is linked into a program that does not draw with it. A program
+links its own font's 208-byte table too: its renderer pulls it in for VT52
+graphics mode (below), or, built with HIRESTEXT_NO_VT52, only if it calls the
+setter.
 
 The line-drawing glyphs are designed to connect seamlessly: horizontal lines
 span the full cell width (no gap at the right edge), and T-junction and cross
@@ -51,7 +52,7 @@ See `clearRowsN.c` and the declaration in `hirestxt.h`.
 Two convenience wrappers come with it. `clearn(byte n)` fills the first `n`
 rows with spaces without moving the cursor, the row-limited counterpart of
 `clear()`; `clrscrn(byte n)` homes the cursor first, as `clrscr()` does. Both
-pick the right fill byte for the current mode, and honour `setScreenInverted()`
+pick the right fill byte for the current mode, and honor `setScreenInverted()`
 the same way `clear()` does.
 
 **New function: `setScreenInverted()`**
@@ -96,7 +97,7 @@ round. The original library built its inversion mask from the bold color
 instead, which recolored the field and left no cue that the text was bold —
 the limitation its `writeCharAt_320x16.c` warned about.
 
-Colour being the only cue on that path, the bold color must differ from
+Color being the only cue on that path, the bold color must differ from
 **both** the foreground and the background. Matching the foreground makes bold
 identical to normal text un-inverted and invisible inverted; matching the
 background does the same the other way round. Nothing enforces this, and
@@ -108,6 +109,10 @@ Thickening has one consequence: the 4x8 cell's last pixel doubles as the
 inter-character gap, so a bold stroke reaching the fourth pixel touches the
 next character. The PMODE 4 modes behave the same way. The demo's bold page
 renders the same sentence both ways for comparison.
+
+**VT52: ESC I, ESC F / ESC G, and ESC Y past the screen edge**
+Added reverse line feed and the graphics character set, and made out-of-range
+cursor addresses behave as on a VT52. See *VT52 Support* below.
 
 **Fixed: the font swap wrote to the wrong glyphs**
 The font array runs 32–127 then 160–255, with no entries for 128–159, so
@@ -180,7 +185,7 @@ Then define a `HiResTextScreenInit` object:
             51,  /* characters per row */
             writeCharAt_51cols,  /* must be consistent with previous field */
             0x0E00,
-            TRUE  /* redirects printf() to the 51x24 text screen */
+            TRUE,  /* redirects printf() to the 51x24 text screen */
             (word *) 0x112,  /* pointer to a 60 Hz async counter (Color Basic's TIMER) */
             0,  /* default cursor blinking rate */
             NULL,  /* use inkey(), i.e., Color Basic's INKEY$ */
@@ -247,6 +252,12 @@ A subset of [VT52](https://en.wikipedia.org/wiki/VT52) terminal sequences
 are supported by the code in function processConsoleOutChar() of
 processConsoleOutChar.c.
 
+Supported: ESC A, B, C, D, E, H, I, J, K, Y, F, G, p, q. ESC Y past the right
+edge goes to the last column; past the bottom it keeps the current line. ESC F
+switches characters 160-185 to the ISO-8859-1 set and draws the VT52 graphics
+characters from it, with plain ASCII where there is no match; ESC G restores
+the previous set.
+
 If this support is not needed, the code for it can be omitted by compiling
 the library with HIRESTEXT_NO_VT52.
 
@@ -296,6 +307,21 @@ This library is in the public domain.
                          hirestxt-demo.c gives an example.
                          The screen is now cleared from top to bottom instead of bottom up.
                          The demo now plays an audible bell character.
+
+    Versions of this modified library (details in CHANGELOG.md):
+
+    0.5.0.1 - 2025-10-23 - Added clearRowsN().
+    0.5.0.2 - 2026-04-07 - Line-drawing and block glyphs at characters 160-185 of the 5x8 font.
+    0.5.0.3 - 2026-04-30 - Added setScreenInverted().
+    0.5.0.4 - 2026-06-12 - Added setHiResTextBuffer() for double buffering.
+    0.5.1.5 - 2026-09-10 - Line-drawing glyphs in the 4x8 font too; setOriginalFont5x8() and
+                           setOriginalFont4x8() switch glyph sets either way.
+                           Fixed selecting the original glyphs, which never worked.
+                           Added setTrueBold() and hirestxt_version().
+                           setScreenInverted() now works in the 320x192x16 mode.
+                           Caught up with upstream 0.5.1.
+    0.5.1.6 - 2026-09-27 - VT52: added ESC I and ESC F / ESC G; ESC Y past the screen edge
+                           now moves as on a VT52.
 
 
 ## Using version 0.5.x
