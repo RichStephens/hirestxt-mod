@@ -83,6 +83,8 @@ enum
     VT52_IGNORE_NEXT    = 4,  // Ignore next byte(s), depending on 'vt52NumBytesToIgnore'.
 };
 
+#endif  /* HIRESTEXT_NO_VT52 */
+
 
 void hiResTextConsoleOutHook(void);
 
@@ -103,6 +105,3 @@ void hiResTextCommonInit(const struct HiResTextScreenInit *init);
 
 
 byte fillNybbles(byte nybble);
-
-
-#endif  /* HIRESTEXT_NO_VT52 */
