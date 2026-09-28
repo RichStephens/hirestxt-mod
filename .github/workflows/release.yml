@@ -36,12 +36,17 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
 
-      - name: Build library
-        run: make libhirestxt.a
-
-      - name: Package binary artifact
+      - name: Build and package standard library (with VT52)
         run: |
+          make clean
+          make libhirestxt.a
           tar -czf hirestxt-mod-bin-${{ steps.version.outputs.VERSION }}.tar.gz libhirestxt.a hirestxt.h
+
+      - name: Build and package no-VT52 library
+        run: |
+          make clean
+          make HIRESTEXT_NO_VT52=-DHIRESTEXT_NO_VT52 libhirestxt.a
+          tar -czf hirestxt-mod-bin-novt52-${{ steps.version.outputs.VERSION }}.tar.gz libhirestxt.a hirestxt.h
 
       - name: Extract release notes from CHANGELOG.md
         run: |
@@ -62,6 +67,8 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: hirestxt-mod-bin-${{ steps.version.outputs.VERSION }}.tar.gz
+          files: |
+            hirestxt-mod-bin-${{ steps.version.outputs.VERSION }}.tar.gz
+            hirestxt-mod-bin-novt52-${{ steps.version.outputs.VERSION }}.tar.gz
           body_path: RELEASE_NOTES.md
           generate_release_notes: true

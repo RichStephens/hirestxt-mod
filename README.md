@@ -322,6 +322,8 @@ This library is in the public domain.
                            Caught up with upstream 0.5.1.
     0.5.1.6 - 2026-09-27 - VT52: added ESC I and ESC F / ESC G; ESC Y past the screen edge
                            now moves as on a VT52.
+    0.5.1.7 - 2026-09-28 - Fixed compiling with HIRESTEXT_NO_VT52; release packages
+                           now include both standard and no-VT52 archives.
 
 
 ## Using version 0.5.x

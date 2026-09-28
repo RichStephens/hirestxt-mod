@@ -4,6 +4,19 @@ Notes for each release. The section whose heading matches a tag becomes that
 release's description on GitHub, with the generated commit list appended below
 it, so writing a release note is just editing this file before tagging.
 
+## 0.5.1.7
+
+### Fixed: HIRESTEXT_NO_VT52 compilation failed under -Werror
+
+The header guard in `hirestxt_private.h` spanned shared declarations including
+`hiResTextCommonInit`, causing builds without VT52 to fail under `-Werror`.
+
+### Packaging: standard and no-VT52 release archives
+
+The release workflow now builds and packages both the standard library
+(`hirestxt-mod-bin-${VERSION}.tar.gz`) and a slim build with VT52 omitted
+(`hirestxt-mod-bin-novt52-${VERSION}.tar.gz`).
+
 ## 0.5.1.6
 
 ### More VT52 sequences

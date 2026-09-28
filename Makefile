@@ -2,7 +2,7 @@
 # This file is in the public domain.
 
 PACKAGE = hirestxt
-VERSION = 0.5.1.6
+VERSION = 0.5.1.7
 
 TARGET = coco
 
